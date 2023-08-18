@@ -101,15 +101,64 @@ The financial data does not require any implicit cleaning since the data is very
 
 ## Prediction Model using RNN LSTM
 
+We have employed the `LSTM (Long Short-Term Memory)` model to predict the adjusted close price of a stock based on its historical data and sentiment scores. The LSTM model is initialized with one or more LSTM layers, followed by a dropout layer to prevent overfitting, and a dense output layer to produce the final prediction. The model is compiled with an optimizer (Adam) and a loss function (mean squared error), and trained on the training dataset using early stopping, learning rate reduction, and model checkpoint techniques to prevent overfitting and improve performance.
+
+Here's an example of setting up the LSTM model for predicting the adjusted close price for AAPL stocks:
+
+```python
+# setting the model architecture
+# Initializing the Neural Network based on LSTM
+model = Sequential()
+# Adding 1st LSTM layer
+model.add(LSTM(units=64, return_sequences=False, input_shape=(len(cols), 1)))
+# Adding Dropout
+model.add(Dropout(0.25))
+# Output layer
+model.add(Dense(units=1, activation='linear'))
+
+# Compiling the Neural Network
+model.compile(optimizer = Adam(learning_rate=0.01), loss='mean_squared_error')
+
+# fitting the model using the training dataset
+es = EarlyStopping(monitor='val_loss', min_delta=1e-10, patience=15, verbose=1)
+rlr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=15, verbose=1)
+mcp = ModelCheckpoint(filepath='weights.h5', monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=True)
+tb = TensorBoard('logs')
+
+# printing the model summary
+model.summary()
+```
+
+![Model Summary](https://github.com/ACM40960/project-hbapuram/blob/main/Images/Model_Summary.png)
+
+![Hyperparameters](https://github.com/ACM40960/project-hbapuram/blob/main/Images/HyperParameters.png) 
+
+For each company, we've tailored the LSTM model parameters to achieve optimal results. These hyperparameters are tuned to achieve optimal performance for each company's stock price prediction.
+
 ### Predicting Adjusted Close Price without Sentiment Scores
 
 > The code for this section can be referred to from the `Prediction_Model_without_Sentiment.ipynb` file found [here](https://github.com/ACM40960/project-hbapuram/blob/main/Python%20Files/Prediction_Model_without_Sentiment.ipynb) in the Python Files directory. Specific parts/functions are outlined in the summary below:
+
+To predict the Adjusted Close Price without incorporating sentiment scores, we will focus solely on the historical financial data. Specifically, we will consider columns containing stock prices including `open`, `high`, `low`, and `volume`. Our goal is to build an LSTM-based model to forecast the stock's Adjusted Close Price, leveraging the temporal patterns in the historical price data.
 
 ### Predicting Adjusted Close Price with Sentiment Scores
 
 > The code for this section can be referred to from the `Prediction_Model_with_Sentiment.ipynb` file found [here](https://github.com/ACM40960/project-hbapuram/blob/main/Python%20Files/Prediction_Model_with_Sentiment.ipynb) in the Python Files directory. Specific parts/functions are outlined in the summary below:
 
+In this section, we will enhance our stock price prediction model by incorporating sentiment scores derived from the analysis of Reddit text data. By combining financial data with sentiment analysis, we aim to investigate whether sentiment signals from social media can improve the accuracy of our stock price predictions.
+To include sentiment scores, we're utilizing the combined dataset of the pre-processed sentiment data with historical financial data which will serve as the input for our prediction model. Our approach involves predicting the Adjusted Close Price using variables such as `open`, `high`, `low`, and `volume`, in addition to sentiment-related metrics like `w_subj` (weighted subjectivity score) and `w_comp` (weighted compound score).
+
+In this visual representation, we observe the significant fluctuations within the data when sentiment scores are absent, as opposed to the distinct influence that sentiments exert in enhancing the precision of stock price predictions.
+
+![Prediction_Graphs](https://github.com/ACM40960/project-hbapuram/blob/main/Images/Prediction_Graphs.png)
+
 ### Model Evaluation using RMSE, MAE, MAPE, and Validation Loss
+
+Below are the metrics depicting the evaluation of the models with and without sentiment scores for various companies:
+
+![Model_Evaluation](https://github.com/ACM40960/project-hbapuram/blob/main/Images/Model_Evaluation.png)
+
+These metrics and loss values provide insight into how the models perform with and without the incorporation of sentiment scores, for each respective company. The comparison aids in understanding the influence of sentiment analysis on the prediction accuracy of stock prices.
 
 ## Results and Conclusion
 
